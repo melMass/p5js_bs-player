@@ -1,16 +1,18 @@
 var playing = false;
 
-var container;
+var myPlayer;
 var currentVideo;
 var slider;
 var button;
 var uiTime;
 var uiRow;
+var fullscreen = 0;
+
 function setup() {
     noCanvas();
 
     //// BS FLUID CONTAINER
-    myPlayer = createContainer("myPlayer");
+    myPlayer = createContainer("myPlayer").id("playerContainer");
 
     // ROW 01 VIDEO
     vrow = createRow("videoFrame").parent(myPlayer);
@@ -21,7 +23,7 @@ function setup() {
             'media/loop.webm',
             'media/loop.ogv'],
         videoReady);
-    currentVideo.style("width", "100%").addClass("videoElt").parent(vrow);
+    currentVideo.style("width", "100%").id("videoElt").parent(vrow);
     currentVideo.pause();
 
     // ROW 02 UI BAR
@@ -41,9 +43,43 @@ function setup() {
     //bCol = createCol('col-xs-1', uiRow);
     //uiDur = createElement("p", "duration").parent(bCol).addClass("playerDuration");
 
+    //fullscreen
+    bCol = createCol('col-xs-1', uiRow);
+    uiFs = createElement("p").parent(bCol).addClass("fa fa-arrows-alt").addClass("fullscreen");
+    uiFs.mousePressed(toggleFullScreen);
+
 
 }
+function keyPressed() {
+  if (keyCode == ESCAPE) {
+      fullscreen=0;
 
+  }
+  }
+function toggleFullScreen() {
+    videoElt = document.getElementById("videoElt");
+
+  if (!document.fullscreenElement &&    // alternative standard method
+      !document.mozFullScreenElement && !document.webkitFullscreenElement) {  // current working methods
+    if (videoElt.requestFullscreen) {
+      videoElt.requestFullscreen();
+    } else if (videoElt.mozRequestFullScreen) {
+      videoElt.mozRequestFullScreen();
+    } else if (videoElt.webkitRequestFullscreen) {
+      videoElt.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+    }
+      fullscreen=1;
+  } else {
+    if (document.cancelFullScreen) {
+      document.cancelFullScreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitCancelFullScreen) {
+      document.webkitCancelFullScreen();
+    }
+      fullscreen=0;
+  }
+}
 
 function videoReady() {
 
@@ -94,17 +130,30 @@ function togglePlay() {
         catch (e) {
             println(e);
         }
+
         currentVideo.loop();
         button.addClass("fa fa-pause-circle");
     }
     playing = !playing;
 }
 
-/*DRAW TO GET CURRENT TIME AND MOVE THE THUMB OF THE SLIDER*/
+/*DRAW TO GET CURRENT TIME AND MOVE THE THUMB OF THE SLIDER AND TO ADJUST THE PLAYER IN FULLSCREEN*/
 function draw() {
     if (playing) {
         slider.value(currentVideo.time());
     }
+
+    if (
+	document.fullscreenEnabled ||
+	document.webkitFullscreenEnabled ||
+	document.mozFullScreenEnabled ||
+	document.msFullscreenEnabled){
+
+
+
+    }
+
+
 
     uiTime.html(Math.floor(currentVideo.time()) + "/" + Math.floor(currentVideo.duration()));
 
